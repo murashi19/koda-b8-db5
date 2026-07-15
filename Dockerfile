@@ -13,8 +13,13 @@ FROM alpine:latest
 
 WORKDIR /app
 
-RUN apk --no-cache add ca-certificates
+RUN apk add --no-cache \
+    ca-certificates \
+    postgresql17-client
 
 COPY --from=builder /app/contact-app .
+COPY entrypoint.sh .
 
-CMD ["./contact-app"]
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]
