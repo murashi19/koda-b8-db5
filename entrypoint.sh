@@ -9,7 +9,7 @@ echo "⏳ Waiting for PostgreSQL..."
 docker-entrypoint.sh postgres &
 env | grep '^POSTGRES_' | sed 's/^POSTGRES_/PG/' > .env
 
-until pg_isready -d "$DATABASE_URL" > /dev/null 2>&1
+until pg_isready -q
 do
     sleep 2
 done
