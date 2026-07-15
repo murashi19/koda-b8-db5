@@ -4,7 +4,7 @@ set -e
 
 echo "🚀 Starting Contact List CLI..."
 
-env | grep '^POSTGRES_' | sed 's/^POSTGRES_/PG/' > /var/app/.env
+env | grep '^POSTGRES_' | sed 's/^POSTGRES_/PG/' > .env
 
 echo "⏳ Waiting for PostgreSQL..."
 
