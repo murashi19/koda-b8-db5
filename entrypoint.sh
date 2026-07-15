@@ -5,10 +5,6 @@ set -e
 echo "🚀 Starting Contact List CLI..."
 
 env | grep '^POSTGRES_' | sed 's/^POSTGRES_/PG/' > /var/app/.env
-if [ -z "$DATABASE_URL" ]; then
-    echo "❌ DATABASE_URL is not set"
-    exit 1
-fi
 
 echo "⏳ Waiting for PostgreSQL..."
 
