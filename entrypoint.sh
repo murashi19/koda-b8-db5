@@ -4,12 +4,17 @@ set -e
 
 echo "🚀 Starting Contact List CLI..."
 
+docker-entrypoint.sh postgres &
+
+export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}?sslmode=disable"
+
 echo "⏳ Waiting for PostgreSQL..."
 
-docker-entrypoint.sh postgres &
-env | grep '^POSTGRES_' | sed 's/^POSTGRES_/PG/' > .env
-
-until pg_isready -q
+until pg_isready \
+    -h localhost \
+    -p 5432 \
+    -U "$POSTGRES_USER" \
+    -d "$POSTGRES_DB"
 do
     sleep 2
 done
