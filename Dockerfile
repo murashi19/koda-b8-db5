@@ -11,7 +11,7 @@ RUN go build -o contact-app .
 
 FROM postgres:alpine
 
-COPY init.sql /docker-entrypoint-initdb.d/
+COPY lib/init.sql /docker-entrypoint-initdb.d/
 
 WORKDIR /app
 
