@@ -1,0 +1,12 @@
+.git
+.github
+.vscode
+.idea
+
+bin
+dist
+
+*.log
+
+
+README.md

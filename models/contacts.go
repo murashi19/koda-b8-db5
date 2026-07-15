@@ -18,55 +18,67 @@ type Contact struct {
 }
 
 func GetAllContact(conn *pgx.Conn) ([]Contact, error) {
-
-	rows, err := conn.Query(context.Background(), `SELECT id, name, email, phone_number, created_at, updated_at FROM contacts`)
+	rows, err := conn.Query(context.Background(), `
+		SELECT id, name, email, phone_number, created_at, updated_at
+		FROM contacts
+	`)
 	if err != nil {
-		fmt.Println("Cannot read a data")
+		return nil, fmt.Errorf("get all contacts: %w", err)
 	}
-
 	defer rows.Close()
 
-	contact, err := pgx.CollectRows(rows, pgx.RowToStructByName[Contact])
-
-	if err = rows.Err(); err != nil {
-		return nil, err
+	contacts, err := pgx.CollectRows(rows, pgx.RowToStructByName[Contact])
+	if err != nil {
+		return nil, fmt.Errorf("collect contacts: %w", err)
 	}
-	return contact, nil
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows error: %w", err)
+	}
+
+	return contacts, nil
 }
 
 func CreateContact(data Contact, conn *pgx.Conn) (Contact, error) {
 	rows, err := conn.Query(context.Background(), `
-		INSERT INTO contacts (name, email, phone_number) VALUES
-		($1, $2, $3)
+		INSERT INTO contacts (name, email, phone_number)
+		VALUES ($1, $2, $3)
 		RETURNING id, name, email, phone_number, created_at, updated_at
 	`, data.Name, data.Email, data.Phone_number)
 	if err != nil {
-		fmt.Println("Failed Insert Query")
+		return Contact{}, fmt.Errorf("insert contact: %w", err)
 	}
+	defer rows.Close()
+
 	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[Contact])
 	if err != nil {
-		fmt.Println("Failed Colleting Data Rows")
+		return Contact{}, fmt.Errorf("collect inserted contact: %w", err)
 	}
+
 	return contact, nil
 }
 
 func UpdateContact(data Contact, conn *pgx.Conn) (Contact, error) {
 	rows, err := conn.Query(context.Background(), `
-		UPDATE contacts SET
-		name = $1,
-		email = $2,
-		phone_number = $3,
-		updated_at = NOW()
+		UPDATE contacts
+		SET
+			name = $1,
+			email = $2,
+			phone_number = $3,
+			updated_at = NOW()
 		WHERE id = $4
 		RETURNING id, name, email, phone_number, created_at, updated_at
 	`, data.Name, data.Email, data.Phone_number, data.Id)
 	if err != nil {
-		fmt.Println("Failed Update Query")
+		return Contact{}, fmt.Errorf("update contact: %w", err)
 	}
+	defer rows.Close()
+
 	contact, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[Contact])
 	if err != nil {
-		fmt.Println("Failed Colleting Data Rows")
+		return Contact{}, fmt.Errorf("collect updated contact: %w", err)
 	}
+
 	return contact, nil
 }
 
@@ -75,14 +87,14 @@ func DeleteContact(id int, conn *pgx.Conn) error {
 		DELETE FROM contacts
 		WHERE id = $1
 	`, id)
+
 	if err != nil {
-		fmt.Println("Failed Delete Query")
+		return fmt.Errorf("delete contact: %w", err)
 	}
+
 	if commandTag.RowsAffected() == 0 {
-		return fmt.Errorf("Contact not found")
+		return fmt.Errorf("contact with id %d not found", id)
 	}
-	if err != nil {
-		fmt.Println("Failed Colleting Data Rows")
-	}
+
 	return nil
 }

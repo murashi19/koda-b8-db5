@@ -10,20 +10,32 @@ import (
 
 func ListContacts(db *pgx.Conn) {
 	utils.ClearScreen()
+
 	contacts, err := models.GetAllContact(db)
 	if err != nil {
-		fmt.Printf("Gagal mengambil data kontak: %v", err)
+		fmt.Printf("Failed to get contacts: %v\n", err)
+		utils.EnterBack()
+		return
 	}
-	fmt.Println("\n--- DAFTAR KONTAK ---")
+
+	fmt.Println("\n--- CONTACT LIST ---")
+
 	if len(contacts) == 0 {
-		fmt.Println("Tidak ada data kontak.")
+		fmt.Println("No contacts found.")
 		utils.EnterBack()
-	} else {
-		for _, c := range contacts {
-			fmt.Printf(" ID: %d\n Nama: %s\n Email: %s\n Phone Number: %s\n", c.Id, c.Name, c.Email, c.Phone_number)
-			fmt.Println("--------------------------")
-			fmt.Println("")
-		}
-		utils.EnterBack()
+		return
 	}
+
+	for _, c := range contacts {
+		fmt.Printf(
+			"ID: %d\nName: %s\nEmail: %s\nPhone Number: %s\n",
+			c.Id,
+			c.Name,
+			c.Email,
+			c.Phone_number,
+		)
+		fmt.Println("--------------------------")
+	}
+
+	utils.EnterBack()
 }

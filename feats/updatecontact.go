@@ -5,8 +5,6 @@ import (
 	"minitask-db5/models"
 	"minitask-db5/utils"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -14,34 +12,35 @@ import (
 func EditContact(db *pgx.Conn) {
 	utils.ClearScreen()
 	fmt.Println("Update Contact")
+
 	id, err := strconv.Atoi(utils.Input("Enter Contact ID: "))
 	if err != nil {
-		fmt.Println("Invalid Contact ID")
-		return
-	}
-	name := strings.TrimSpace(utils.Input("Enter your Name: "))
-	email := strings.TrimSpace(utils.Input("Enter your Email: "))
-	phone := strings.TrimSpace(utils.Input("Enter your Phone Number: "))
-
-	data := models.Contact{
-		Id:           id,
-		Name:         name,
-		Email:        email,
-		Phone_number: phone,
-	}
-
-	updateInput, err := models.UpdateContact(data, db)
-	if err != nil {
-		fmt.Println("Failed Update Contact")
+		fmt.Printf("Invalid contact ID: %v\n", err)
 		utils.EnterBack()
 		return
 	}
 
-	fmt.Println("Contact Successfuly Saved!")
-	fmt.Printf("ID: %d\n", updateInput.Id)
-	fmt.Printf("Name: %s\n", updateInput.Name)
-	fmt.Printf("Email: %s\n", updateInput.Email)
-	fmt.Printf("Phone Number: %s\n", updateInput.Phone_number)
-	time.Sleep(2 * time.Second)
+	data, err := inputContactData()
+	if err != nil {
+		fmt.Println(err)
+		utils.EnterBack()
+		return
+	}
+
+	data.Id = id
+
+	contact, err := models.UpdateContact(data, db)
+	if err != nil {
+		fmt.Printf("Failed to update contact: %v\n", err)
+		utils.EnterBack()
+		return
+	}
+
+	fmt.Println("Contact Successfully Updated!")
+	fmt.Printf("ID: %d\n", contact.Id)
+	fmt.Printf("Name: %s\n", contact.Name)
+	fmt.Printf("Email: %s\n", contact.Email)
+	fmt.Printf("Phone: %s\n", contact.Phone_number)
+
 	utils.EnterBack()
 }

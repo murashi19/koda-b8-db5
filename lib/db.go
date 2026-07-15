@@ -10,12 +10,17 @@ import (
 )
 
 func Conn() (*pgx.Conn, error) {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Cannot read .env file")
+	_ = godotenv.Load()
+
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
+		return nil, fmt.Errorf("DATABASE_URL is not set")
 	}
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+
+	conn, err := pgx.Connect(context.Background(), connStr)
+	if err != nil {
+		return nil, fmt.Errorf("connect database: %w", err)
+	}
 
 	return conn, nil
-
 }

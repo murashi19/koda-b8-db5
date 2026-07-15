@@ -1,24 +1,27 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"minitask-db5/feats"
 	"minitask-db5/lib"
 	"minitask-db5/utils"
-	"os"
 	"strconv"
 	"time"
 )
 
 func main() {
 
-	var err error
 	db, err := lib.Conn()
 	if err != nil {
-		fmt.Println("Gagal terhubung ke database:", err)
+		fmt.Printf("Failed to connect to database: %v\n", err)
+		return
 	}
 
-	fmt.Println("Berhasil terhubung ke database!")
+	defer db.Close(context.Background())
+
+	fmt.Println("Successfully connected to database!")
+
 	done := make(chan struct{})
 	go utils.Loading(done, "Data is being processed...")
 
@@ -51,7 +54,8 @@ func main() {
 		case 4:
 			feats.DeletedContact(db)
 		case 0:
-			os.Exit(0)
+			fmt.Println("Thank you for using Contact List App.")
+			return
 		default:
 			fmt.Println("Please fill according to the menu")
 			time.Sleep(1 * time.Second)
