@@ -120,3 +120,28 @@ Create a new release by pushing a version tag:
 git tag v1.0.0
 git push origin v1.0.0
 ```
+
+## Run with Docker Image
+
+You can run the application without building it from source by using the pre-built Docker image available on GitHub Container Registry (GHCR).
+
+### Pull the latest image
+
+```bash
+docker pull ghcr.io/<github-username>/<repository>:latest
+```
+
+Or pull a specific release.
+
+```bash
+docker pull ghcr.io/<github-username>/<repository>:v1.0.0
+```
+
+### Run the application
+
+```bash
+docker run -it --rm ghcr.io/<github-username>/<repository>:latest
+```
+
+The application will automatically initialize the required database configuration and start the CLI. No additional setup is required.
+
